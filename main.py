@@ -1,8 +1,9 @@
-
-from flask import Flask
+from flask import Flask, Response
+import subprocess
 import os
 
 app = Flask(__name__)
+process = None  # অডিও স্ট্রিম প্রসেস ধরে রাখার জন্য ভ্যারিয়েবল
 
 @app.route('/')
 def home():
@@ -10,11 +11,23 @@ def home():
 
 @app.route('/start')
 def start():
-    return "Start Command Received"
+    global process
+    if process is None:
+        process = subprocess.Popen(
+            ["ffmpeg", "-f", "avfoundation", "-i", ":0", "-acodec", "libmp3lame", "-f", "mp3", "pipe:1"],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+        )
+        return "Audio Stream Started"
+    return "Audio Stream Already Running"
 
 @app.route('/stop')
 def stop():
-    return "Stop Command Received"
+    global process
+    if process:
+        process.terminate()
+        process = None
+        return "Audio Stream Stopped"
+    return "No Active Stream"
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
