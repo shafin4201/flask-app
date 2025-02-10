@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Audio Stream</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; margin-top: 50px; }
+        button { padding: 10px 20px; font-size: 16px; margin: 10px; cursor: pointer; }
+        audio { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Flask Audio Streaming</h1>
+    <button onclick="startStream()">🔊 Start Streaming</button>
+    <button onclick="stopStream()">🔇 Stop Streaming</button>
+    <br><br>
+    <audio controls>
+        <source src="/audio" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        function startStream() {
+            fetch('/start')
+                .then(response => response.text())
+                .then(data => alert(data))
+                .catch(error => console.error('Error:', error));
+        }
+
+        function stopStream() {
+            fetch('/stop')
+                .then(response => response.text())
+                .then(data => alert(data))
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
