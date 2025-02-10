@@ -14,7 +14,7 @@ def start():
     global process
     if process is None:
         process = subprocess.Popen(
-            ["ffmpeg", "-f", "avfoundation", "-i", ":0", "-acodec", "libmp3lame", "-f", "mp3", "pipe:1"],
+            ["ffmpeg", "-f", "alsa", "-i", "default", "-acodec", "libmp3lame", "-f", "mp3", "pipe:1"],
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
         )
         return "Audio Stream Started"
@@ -28,6 +28,21 @@ def stop():
         process = None
         return "Audio Stream Stopped"
     return "No Active Stream"
+
+@app.route('/audio')
+def audio():
+    def generate():
+        global process
+        if process:
+            while True:
+                data = process.stdout.read(1024)
+                if not data:
+                    break
+                yield data
+        else:
+            yield b''
+
+    return Response(generate(), mimetype="audio/mpeg")
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
