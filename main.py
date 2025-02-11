@@ -1,4 +1,4 @@
-from flask import Flask, Response
+from flask import Flask, Response, render_template
 import subprocess
 import os
 
@@ -7,7 +7,7 @@ process = None  # অডিও স্ট্রিম প্রসেস ধর�
 
 @app.route('/')
 def home():
-    return "Server is Running!"
+    return render_template("index.html")  # GUI ইন্টারফেস লোড করা
 
 @app.route('/start')
 def start():
