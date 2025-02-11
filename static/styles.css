@@ -1,0 +1,32 @@
+body {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    margin-top: 50px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    color: white;
+}
+
+#startBtn {
+    background-color: green;
+}
+
+#stopBtn {
+    background-color: red;
+}
+
+audio {
+    margin-top: 20px;
+}
+
+#status {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 20px;
+}
