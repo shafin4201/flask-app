@@ -1,4 +1,4 @@
-function startStream() {1
+function startStream() {
     fetch('/start')
         .then(response => response.json())
         .then(data => {
