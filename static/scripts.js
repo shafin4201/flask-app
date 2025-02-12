@@ -23,10 +23,9 @@ function checkStatus() {
         .then(response => response.json())
         .then(data => {
             document.getElementById("status").innerText = `Status: ${data.message}`;
-            let audioPlayer = document.getElementById("audioPlayer");
-
+            let audioPlayer = document.getElementById("audio-player");
             if (data.status === "running") {
-                audioPlayer.load();
+                audioPlayer.load();  // প্লেয়ার রিফ্রেশ করা
                 audioPlayer.play();
             } else {
                 audioPlayer.pause();
