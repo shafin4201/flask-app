@@ -43,6 +43,11 @@
             width: 100%;
             margin-top: 20px;
         }
+        #status {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
     </style>
 </head>
 <body>
@@ -52,6 +57,7 @@
         <button onclick="startStream()">Start Stream</button>
         <button onclick="stopStream()">Stop Stream</button>
         <button onclick="checkStatus()">Check Status</button>
+        <p id="status">Status: Unknown</p>
         <audio id="audio-player" controls>
             <source id="audio-source" src="/audio" type="audio/mpeg">
             Your browser does not support the audio element.
@@ -64,7 +70,7 @@
                 .then(response => response.json())
                 .then(data => {
                     alert(data.message);
-                    startAudioStream(); // Start the audio stream when the stream starts
+                    checkStatus();
                 })
                 .catch(error => console.error('Error:', error));
         }
@@ -72,24 +78,28 @@
         function stopStream() {
             fetch('/stop')
                 .then(response => response.json())
-                .then(data => alert(data.message))
+                .then(data => {
+                    alert(data.message);
+                    checkStatus();
+                })
                 .catch(error => console.error('Error:', error));
         }
 
         function checkStatus() {
             fetch('/status')
                 .then(response => response.json())
-                .then(data => alert(data.message))
+                .then(data => {
+                    document.getElementById("status").innerText = `Status: ${data.message}`;
+                    if (data.status === "running") {
+                        document.getElementById("audio-player").play();
+                    } else {
+                        document.getElementById("audio-player").pause();
+                    }
+                })
                 .catch(error => console.error('Error:', error));
         }
 
-        function startAudioStream() {
-            const audioPlayer = document.getElementById('audio-player');
-            const audioSource = document.getElementById('audio-source');
-            audioSource.src = '/audio';  // Set the source to the audio stream
-            audioPlayer.load();  // Reload the player with the new source
-            audioPlayer.play();  // Start playing the audio
-        }
+        document.addEventListener("DOMContentLoaded", checkStatus);
     </script>
 </body>
 </html>
