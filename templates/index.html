@@ -3,20 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask Audio Stream</title>
+    <title>Flask Audio Stream - Airdroid Style</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Flask Audio Streaming</h1>
-    <button id="startBtn" onclick="startStream()">🔊 Start Streaming</button>
-    <button id="stopBtn" onclick="stopStream()">🔇 Stop Streaming</button>
-    <p id="status">Checking status...</p>
-    <br><br>
-    <audio id="audioPlayer" controls>
-        <source src="/audio" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-
+    <div class="container">
+        <header>
+            <h1>Flask Audio Stream</h1>
+        </header>
+        <main>
+            <div class="controls">
+                <button id="startBtn" class="btn start" onclick="startStream()">Start Streaming</button>
+                <button id="stopBtn" class="btn stop" onclick="stopStream()">Stop Streaming</button>
+            </div>
+            <p id="status">Checking status...</p>
+            <audio id="audioPlayer" controls>
+                <source src="/audio" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </main>
+        <footer>
+            <p>&copy; 2025 Flask Audio Stream</p>
+        </footer>
+    </div>
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 </html>
