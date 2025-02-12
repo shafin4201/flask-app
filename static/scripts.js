@@ -23,10 +23,13 @@ function checkStatus() {
         .then(response => response.json())
         .then(data => {
             document.getElementById("status").innerText = `Status: ${data.message}`;
+            let audioPlayer = document.getElementById("audioPlayer");
+
             if (data.status === "running") {
-                document.getElementById("audio-player").play();
+                audioPlayer.load();
+                audioPlayer.play();
             } else {
-                document.getElementById("audio-player").pause();
+                audioPlayer.pause();
             }
         })
         .catch(error => console.error('Error:', error));
