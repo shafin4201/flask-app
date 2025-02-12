@@ -6,20 +6,20 @@ import time
 from threading import Thread
 
 app = Flask(__name__)
-process = None  # অডিও স্ট্রিম প্রসেস ধরে রাখার জন্য ভ্যারিয়েবল
+process = None  # অডিও স্ট্রিম প্রসেস
 
-# Keep-Alive ফাংশন (Cold Start সমস্যা সমাধানের জন্য)
+# Keep-Alive ফাংশন (Cold Start সমস্যা প্রতিরোধ)
 def keep_alive():
     while True:
         try:
             requests.get("https://flask-app-kyhw.onrender.com/")
         except requests.exceptions.RequestException as e:
             print(f"Keep-Alive request failed: {e}")
-        time.sleep(30)  # ৩০ সেকেন্ড পর Keep-Alive request পাঠানো
+        time.sleep(30)  # ৩০ সেকেন্ড পর পর রিকোয়েস্ট
 
 @app.route('/')
 def home():
-    return render_template("index.html")  # ওয়েব GUI লোড করা
+    return render_template("index.html")  # মূল ওয়েব GUI
 
 @app.route('/start', methods=['GET'])
 def start():
@@ -61,7 +61,7 @@ def audio():
 
 @app.route('/status', methods=['GET'])
 def status():
-    """ স্ট্রিমের বর্তমান স্ট্যাটাস চেক করা """
+    """ স্ট্রিম স্ট্যাটাস চেক করা """
     global process
     if process:
         return jsonify({"status": "running", "message": "Audio Stream is active"})
@@ -69,8 +69,8 @@ def status():
 
 @app.route('/shafin.web')
 def web_interface():
-    """ ওয়েব ইন্টারফেইস পেজ লোড করা """
-    return render_template('shafin_web.html')  # ওয়েব ইন্টারফেইস পেজ লোড করা
+    """ কাস্টম ওয়েব ইন্টারফেস পেজ লোড করা """
+    return render_template('shafin_web.html')
 
 if __name__ == '__main__':
     # Keep-Alive থ্রেড চালু করা
