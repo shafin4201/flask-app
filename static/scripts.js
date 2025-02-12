@@ -1,5 +1,3 @@
-document.addEventListener("DOMContentLoaded", checkStatus);
-
 function startStream() {
     fetch('/start')
         .then(response => response.json())
@@ -33,3 +31,5 @@ function checkStatus() {
         })
         .catch(error => console.error('Error:', error));
 }
+
+document.addEventListener("DOMContentLoaded", checkStatus);
