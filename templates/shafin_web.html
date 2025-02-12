@@ -39,6 +39,10 @@
         button:hover {
             background-color: #45a049;
         }
+        audio {
+            width: 100%;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -48,13 +52,20 @@
         <button onclick="startStream()">Start Stream</button>
         <button onclick="stopStream()">Stop Stream</button>
         <button onclick="checkStatus()">Check Status</button>
+        <audio id="audio-player" controls>
+            <source id="audio-source" src="/audio" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
     </div>
 
     <script>
         function startStream() {
             fetch('/start')
                 .then(response => response.json())
-                .then(data => alert(data.message))
+                .then(data => {
+                    alert(data.message);
+                    startAudioStream(); // Start the audio stream when the stream starts
+                })
                 .catch(error => console.error('Error:', error));
         }
 
@@ -70,6 +81,14 @@
                 .then(response => response.json())
                 .then(data => alert(data.message))
                 .catch(error => console.error('Error:', error));
+        }
+
+        function startAudioStream() {
+            const audioPlayer = document.getElementById('audio-player');
+            const audioSource = document.getElementById('audio-source');
+            audioSource.src = '/audio';  // Set the source to the audio stream
+            audioPlayer.load();  // Reload the player with the new source
+            audioPlayer.play();  // Start playing the audio
         }
     </script>
 </body>
