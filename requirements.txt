@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 Flask
 ffmpeg-python
 gunicorn
 requests
->>>>>>> 178ed6e8dadfb83489a79d414c56654a62c0f251
