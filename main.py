@@ -67,6 +67,11 @@ def status():
         return jsonify({"status": "running", "message": "Audio Stream is active"})
     return jsonify({"status": "inactive", "message": "No Active Stream"})
 
+@app.route('/shafin.web')
+def web_interface():
+    """ ওয়েব ইন্টারফেইস পেজ লোড করা """
+    return render_template('shafin_web.html')  # ওয়েব ইন্টারফেইস পেজ লোড করা
+
 if __name__ == '__main__':
     # Keep-Alive থ্রেড চালু করা
     keep_alive_thread = Thread(target=keep_alive)
