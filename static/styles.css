@@ -1,33 +1,71 @@
-body {
-    text-align: center;
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin-top: 50px;
+/* Basic styling for Airdroid-like interface */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    margin: 10px;
-    cursor: pointer;
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+    text-align: center;
+    padding: 50px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+header h1 {
+    color: #333;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.controls {
+    margin: 20px 0;
+}
+
+.btn {
+    padding: 15px 30px;
+    font-size: 1.2rem;
     border: none;
     color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;
 }
 
-#startBtn {
-    background-color: green;
+.start {
+    background-color: #4CAF50; /* Green */
 }
 
-#stopBtn {
-    background-color: red;
+.stop {
+    background-color: #f44336; /* Red */
+}
+
+.start:hover {
+    background-color: #45a049;
+}
+
+.stop:hover {
+    background-color: #e53935;
+}
+
+#status {
+    font-size: 1.2rem;
+    margin-top: 20px;
+}
+
+footer p {
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 50px;
 }
 
 audio {
     margin-top: 20px;
-}
-
-#status {
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 20px;
+    width: 100%;
 }
