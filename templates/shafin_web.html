@@ -4,102 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shafin's Web Interface</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            text-align: center;
-            width: 300px;
-        }
-        h1 {
-            color: #4CAF50;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        audio {
-            width: 100%;
-            margin-top: 20px;
-        }
-        #status {
-            margin-top: 15px;
-            font-weight: bold;
-            color: #4CAF50;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to Shafin's Web Interface</h1>
-        <p>Control the audio stream and other functionalities from here.</p>
+        <h1>Shafin's Web Interface</h1>
         <button onclick="startStream()">Start Stream</button>
         <button onclick="stopStream()">Stop Stream</button>
         <button onclick="checkStatus()">Check Status</button>
         <p id="status">Status: Unknown</p>
-        <audio id="audio-player" controls>
-            <source id="audio-source" src="/audio" type="audio/mpeg">
+        <audio id="audioPlayer" controls>
+            <source src="/audio" type="audio/mpeg">
             Your browser does not support the audio element.
         </audio>
     </div>
 
-    <script>
-        function startStream() {
-            fetch('/start')
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    checkStatus();
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        function stopStream() {
-            fetch('/stop')
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    checkStatus();
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        function checkStatus() {
-            fetch('/status')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("status").innerText = `Status: ${data.message}`;
-                    if (data.status === "running") {
-                        document.getElementById("audio-player").play();
-                    } else {
-                        document.getElementById("audio-player").pause();
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        document.addEventListener("DOMContentLoaded", checkStatus);
-    </script>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 </html>
