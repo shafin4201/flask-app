@@ -24,9 +24,9 @@ function checkStatus() {
         .then(data => {
             document.getElementById("status").innerText = `Status: ${data.message}`;
             if (data.status === "running") {
-                document.getElementById("audioPlayer").play();
+                document.getElementById("audio-player").play();
             } else {
-                document.getElementById("audioPlayer").pause();
+                document.getElementById("audio-player").pause();
             }
         })
         .catch(error => console.error('Error:', error));
