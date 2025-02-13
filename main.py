@@ -1,51 +1,39 @@
-from flask import Flask, Response, render_template, jsonify
+from flask import Flask, Response, render_template
 import subprocess
 import os
-import requests
+import threading
 import time
-from threading import Thread
+import requests
 
-app = Flask(__name__)
-process = None  # অডিও স্ট্রিম প্রসেস ধরে রাখার জন্য ভ্যারিয়েবল
-
-# Keep-Alive ফাংশন (Cold Start সমস্যা সমাধানের জন্য)
-def keep_alive():
-    while True:
-        try:
-            requests.get("https://flask-app-kyhw.onrender.com/")
-        except requests.exceptions.RequestException as e:
-            print(f"Keep-Alive request failed: {e}")
-        time.sleep(30)  # ৩০ সেকেন্ড পর Keep-Alive request পাঠানো
+app = Flask(__name__, template_folder="templates")
+process = None  # অডিও স্ট্রিম প্রসেস ধরার জন্য ভ্যারিয়েবল
 
 @app.route('/')
 def home():
-    return render_template("index.html")  # ওয়েব GUI লোড করা
+    return render_template("index.html")  # GUI ইন্টারফেস লোড করবে
 
-@app.route('/start', methods=['GET'])
+@app.route('/start')
 def start():
-    """ অডিও স্ট্রিম শুরু করা """
     global process
     if process is None:
         process = subprocess.Popen(
             ["ffmpeg", "-f", "alsa", "-i", "default", "-acodec", "libmp3lame", "-f", "mp3", "pipe:1"],
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
         )
-        return jsonify({"status": "started", "message": "Audio Stream Started"})
-    return jsonify({"status": "running", "message": "Audio Stream Already Running"})
+        return "Audio Stream Started"
+    return "Audio Stream Already Running"
 
-@app.route('/stop', methods=['GET'])
+@app.route('/stop')
 def stop():
-    """ অডিও স্ট্রিম বন্ধ করা """
     global process
     if process:
         process.terminate()
         process = None
-        return jsonify({"status": "stopped", "message": "Audio Stream Stopped"})
-    return jsonify({"status": "inactive", "message": "No Active Stream"})
+        return "Audio Stream Stopped"
+    return "No Active Stream"
 
 @app.route('/audio')
 def audio():
-    """ লাইভ অডিও স্ট্রিম পাঠানো """
     def generate():
         global process
         if process:
@@ -59,24 +47,20 @@ def audio():
 
     return Response(generate(), mimetype="audio/mpeg")
 
-@app.route('/status', methods=['GET'])
-def status():
-    """ স্ট্রিমের বর্তমান স্ট্যাটাস চেক করা """
-    global process
-    if process:
-        return jsonify({"status": "running", "message": "Audio Stream is active"})
-    return jsonify({"status": "inactive", "message": "No Active Stream"})
+# === Keep Alive Function ===
+def keep_server_awake():
+    server_url = "https://flask-app-kyhw.onrender.com"  # আপনার Render সার্ভারের URL
+    while True:
+        try:
+            response = requests.get(server_url)
+            print(f"Keep-alive request sent to: {server_url}, Status Code: {response.status_code}")
+        except Exception as e:
+            print(f"Keep-alive request failed: {e}")
+        time.sleep(30)  # ৩০ সেকেন্ড পর পর রিকোয়েস্ট পাঠাবে
 
-@app.route('/shafin.web')
-def web_interface():
-    """ ওয়েব ইন্টারফেইস পেজ লোড করা """
-    return render_template('shafin_web.html')  # ওয়েব ইন্টারফেইস পেজ লোড করা
+# === Thread চালু করা হবে Keep Alive এর জন্য ===
+threading.Thread(target=keep_server_awake, daemon=True).start()
 
 if __name__ == '__main__':
-    # Keep-Alive থ্রেড চালু করা
-    keep_alive_thread = Thread(target=keep_alive)
-    keep_alive_thread.daemon = True  # Flask বন্ধ হলে থ্রেডও বন্ধ হবে
-    keep_alive_thread.start()
-
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
