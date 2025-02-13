@@ -5,7 +5,7 @@ import requests
 import time
 from threading import Thread
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
 process = None  # অডিও স্ট্রিম প্রসেস ধরে রাখার জন্য ভ্যারিয়েবল
 
 # Keep-Alive ফাংশন (Cold Start সমস্যা সমাধানের জন্য)
@@ -13,8 +13,9 @@ def keep_alive():
     while True:
         try:
             requests.get("https://flask-app-kyhw.onrender.com/")
+            print("✅ Keep-Alive request sent successfully!")
         except requests.exceptions.RequestException as e:
-            print(f"Keep-Alive request failed: {e}")
+            print(f"❌ Keep-Alive request failed: {e}")
         time.sleep(30)  # ৩০ সেকেন্ড পর Keep-Alive request পাঠানো
 
 @app.route('/')
@@ -30,8 +31,8 @@ def start():
             ["ffmpeg", "-f", "alsa", "-i", "default", "-acodec", "libmp3lame", "-f", "mp3", "pipe:1"],
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
         )
-        return jsonify({"status": "started", "message": "Audio Stream Started"})
-    return jsonify({"status": "running", "message": "Audio Stream Already Running"})
+        return jsonify({"status": "started", "message": "✅ Audio Stream Started"})
+    return jsonify({"status": "running", "message": "⚠️ Audio Stream Already Running"})
 
 @app.route('/stop', methods=['GET'])
 def stop():
@@ -40,8 +41,8 @@ def stop():
     if process:
         process.terminate()
         process = None
-        return jsonify({"status": "stopped", "message": "Audio Stream Stopped"})
-    return jsonify({"status": "inactive", "message": "No Active Stream"})
+        return jsonify({"status": "stopped", "message": "⛔ Audio Stream Stopped"})
+    return jsonify({"status": "inactive", "message": "⚠️ No Active Stream"})
 
 @app.route('/audio')
 def audio():
@@ -64,8 +65,8 @@ def status():
     """ স্ট্রিমের বর্তমান স্ট্যাটাস চেক করা """
     global process
     if process:
-        return jsonify({"status": "running", "message": "Audio Stream is active"})
-    return jsonify({"status": "inactive", "message": "No Active Stream"})
+        return jsonify({"status": "running", "message": "🎵 Audio Stream is Active"})
+    return jsonify({"status": "inactive", "message": "🚫 No Active Stream"})
 
 @app.route('/shafin.web')
 def web_interface():
