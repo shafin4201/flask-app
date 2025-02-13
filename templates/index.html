@@ -10,8 +10,11 @@
             .then(data => {
                 alert(data.message);
                 document.getElementById("audio-source").src = "/audio";  // অডিও সোর্স রিসেট
-                document.getElementById("audio-player").load(); // প্লেয়ার আপডেট
-                document.getElementById("audio-player").play(); // প্লে শুরু
+                let player = document.getElementById("audio-player");
+                player.load(); // প্লেয়ার আপডেট
+                player.play().catch(error => {
+                    console.error("Auto-play prevented:", error);
+                });
             })
             .catch(error => console.error('Error:', error));
     }
