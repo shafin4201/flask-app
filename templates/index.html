@@ -1,31 +1,107 @@
-<audio id="audio-player" controls>
-    <source id="audio-source" src="/audio" type="audio/mpeg">
-    Your browser does not support the audio element.
-</audio>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shafin's Web Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        button {
+            display: block;
+            width: 200px;
+            padding: 10px;
+            margin: 10px auto;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .start-btn { background-color: green; color: white; }
+        .stop-btn { background-color: red; color: white; }
+        .status { margin-top: 10px; font-size: 18px; color: red; }
+    </style>
+</head>
+<body>
 
-<script>
-    function startStream() {
-        fetch('/start')
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                document.getElementById("audio-source").src = "/audio";  // অডিও সোর্স রিসেট
-                let player = document.getElementById("audio-player");
-                player.load(); // প্লেয়ার আপডেট
-                player.play().catch(error => {
-                    console.error("Auto-play prevented:", error);
+    <div class="container">
+        <h2>Welcome to Shafin's Web Interface</h2>
+        <p>Control the audio stream and other functionalities from here.</p>
+
+        <button id="startStream" class="start-btn">Start Stream</button>
+        <button id="stopStream" class="stop-btn">Stop Stream</button>
+        <button id="checkStatus">Check Status</button>
+
+        <p class="status" id="streamStatus">Status: ❌ No Active Stream</p>
+
+        <audio id="audioPlayer" controls>
+            <source src="" type="audio/wav">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById("startStream");
+        const stopBtn = document.getElementById("stopStream");
+        const statusText = document.getElementById("streamStatus");
+        const audioPlayer = document.getElementById("audioPlayer");
+
+        let ws;
+
+        function connectWebSocket() {
+            ws = new WebSocket("ws://your-server-ip:5000/audio");  // তোমার সার্ভারের ঠিকানা দিন
+
+            ws.onopen = function () {
+                console.log("Connected to WebSocket");
+            };
+
+            ws.onmessage = function (event) {
+                console.log("Receiving audio data...");
+                const audioBlob = new Blob([event.data], { type: "audio/wav" });
+                audioPlayer.src = URL.createObjectURL(audioBlob);
+                audioPlayer.play();
+                statusText.innerHTML = "Status: ✅ Live Streaming";
+                statusText.style.color = "green";
+            };
+
+            ws.onclose = function () {
+                console.log("WebSocket closed");
+                statusText.innerHTML = "Status: ❌ No Active Stream";
+                statusText.style.color = "red";
+            };
+        }
+
+        startBtn.addEventListener("click", function () {
+            fetch("/start_stream")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "streaming") {
+                        connectWebSocket();
+                    }
                 });
-            })
-            .catch(error => console.error('Error:', error));
-    }
+        });
 
-    function stopStream() {
-        fetch('/stop')
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                document.getElementById("audio-player").pause();
-            })
-            .catch(error => console.error('Error:', error));
-    }
-</script>
+        stopBtn.addEventListener("click", function () {
+            fetch("/stop_stream")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "stopped") {
+                        ws.close();
+                    }
+                });
+        });
+    </script>
+
+</body>
+</html>
