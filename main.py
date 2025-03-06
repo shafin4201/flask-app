@@ -1,83 +1,46 @@
-from flask import Flask, Response, render_template, jsonify
-import subprocess
-import os
-import requests
+from flask import Flask, render_template, jsonify
+from flask_sockets import Sockets
+import pyaudio
+import threading
 import time
-from threading import Thread
 
-app = Flask(__name__, template_folder="templates")
-process = None  # অডিও স্ট্রিম প্রসেস ধরে রাখার জন্য ভ্যারিয়েবল
+app = Flask(__name__)
+sockets = Sockets(app)
 
-# Keep-Alive ফাংশন (Cold Start সমস্যা সমাধানের জন্য)
-def keep_alive():
-    while True:
-        try:
-            requests.get("https://flask-app-kyhw.onrender.com/")
-            print("✅ Keep-Alive request sent successfully!")
-        except requests.exceptions.RequestException as e:
-            print(f"❌ Keep-Alive request failed: {e}")
-        time.sleep(30)  # ৩০ সেকেন্ড পর Keep-Alive request পাঠানো
+# PyAudio সেটআপ
+audio = pyaudio.PyAudio()
+streaming = False
 
-@app.route('/')
-def home():
-    return render_template("index.html")  # ওয়েব GUI লোড করা
+def record_audio(ws):
+    global streaming
+    stream = audio.open(format=pyaudio.paInt16, channels=1, rate=44100, input=True, frames_per_buffer=1024)
+    
+    while streaming:
+        data = stream.read(1024)
+        ws.send(data)
+    
+    stream.stop_stream()
+    stream.close()
 
-@app.route('/start', methods=['GET'])
-def start():
-    """ অডিও স্ট্রিম শুরু করা """
-    global process
-    if process is None:
-        process = subprocess.Popen(
-            ["ffmpeg", "-f", "alsa", "-i", "default", "-acodec", "libmp3lame", "-f", "mp3", "pipe:1"],
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
-        )
-        return jsonify({"status": "started", "message": "✅ Audio Stream Started"})
-    return jsonify({"status": "running", "message": "⚠️ Audio Stream Already Running"})
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-@app.route('/stop', methods=['GET'])
-def stop():
-    """ অডিও স্ট্রিম বন্ধ করা """
-    global process
-    if process:
-        process.terminate()
-        process = None
-        return jsonify({"status": "stopped", "message": "⛔ Audio Stream Stopped"})
-    return jsonify({"status": "inactive", "message": "⚠️ No Active Stream"})
+@app.route("/start_stream")
+def start_stream():
+    global streaming
+    streaming = True
+    return jsonify({"status": "streaming"})
 
-@app.route('/audio')
-def audio():
-    """ লাইভ অডিও স্ট্রিম পাঠানো """
-    def generate():
-        global process
-        if process:
-            while True:
-                data = process.stdout.read(1024)
-                if not data:
-                    break
-                yield data
-        else:
-            yield b''
+@app.route("/stop_stream")
+def stop_stream():
+    global streaming
+    streaming = False
+    return jsonify({"status": "stopped"})
 
-    return Response(generate(), mimetype="audio/mpeg")
-
-@app.route('/status', methods=['GET'])
-def status():
-    """ স্ট্রিমের বর্তমান স্ট্যাটাস চেক করা """
-    global process
-    if process:
-        return jsonify({"status": "running", "message": "🎵 Audio Stream is Active"})
-    return jsonify({"status": "inactive", "message": "🚫 No Active Stream"})
-
-@app.route('/shafin.web')
-def web_interface():
-    """ ওয়েব ইন্টারফেইস পেজ লোড করা """
-    return render_template('shafin_web.html')  # ওয়েব ইন্টারফেইস পেজ লোড করা
-
-if __name__ == '__main__':
-    # Keep-Alive থ্রেড চালু করা
-    keep_alive_thread = Thread(target=keep_alive)
-    keep_alive_thread.daemon = True  # Flask বন্ধ হলে থ্রেডও বন্ধ হবে
-    keep_alive_thread.start()
-
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+@sockets.route('/audio')
+def audio_socket(ws):
+    global streaming
+    if streaming:
+        thread = threading.Thread(target=record_audio, args=(ws,))
+        thread.start()
