@@ -1,7 +1,7 @@
 let audioPlayer = document.getElementById("audio-player");
 let audioStream = null;
 
-// WebSocket ব্যবহার করে লাইভ অডিও স্ট্রিম শুরু করা
+// লাইভ অডিও স্ট্রিম শুরু করা
 function startStream() {
     fetch('/start')
         .then(response => response.json())
