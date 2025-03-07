@@ -5,4 +5,3 @@ gevent
 gevent-websocket
 aiortc
 numpy
-sounddevice
