@@ -1,6 +1,6 @@
 import asyncio
 import json
-import pyaudio
+import sounddevice as sd
 from aiortc import RTCPeerConnection, MediaStreamTrack
 from aiortc.mediastreams import AudioFrame
 from flask import Flask, render_template, request, jsonify
@@ -13,11 +13,11 @@ class AudioStreamTrack(MediaStreamTrack):
 
     def __init__(self):
         super().__init__()
-        self.pa = pyaudio.PyAudio()
-        self.stream = self.pa.open(format=pyaudio.paInt16, channels=1, rate=44100, input=True, frames_per_buffer=1024)
+        self.stream = sd.InputStream(samplerate=44100, channels=1, dtype="int16")
+        self.stream.start()
 
     async def recv(self):
-        frame = self.stream.read(1024)
+        frame, _ = self.stream.read(1024)
         return AudioFrame.from_ndarray(frame)
 
 @app.route("/")
