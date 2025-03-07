@@ -1,4 +1,7 @@
 flask
 flask-sockets
-pyaudio
 gunicorn
+gevent
+gevent-websocket
+aiortc
+numpy
