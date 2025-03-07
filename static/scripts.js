@@ -1,64 +1,23 @@
-let audioPlayer = document.getElementById("audio-player");
-let audioStream = null;
+let pc = new RTCPeerConnection();
 
-// লাইভ অডিও স্ট্রিম শুরু করা
-function startStream() {
-    fetch('/start')
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            checkStatus();
+async function startStream() {
+    let offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
 
-            // WebSocket কানেকশন তৈরি করা
-            if (!audioStream) {
-                audioStream = new WebSocket("wss://" + window.location.host + "/audio");
+    let response = await fetch("/offer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ offer: pc.localDescription })
+    });
 
-                audioStream.onmessage = function(event) {
-                    let audioBlob = new Blob([event.data], { type: "audio/wav" });
-                    let objectURL = URL.createObjectURL(audioBlob);
-                    audioPlayer.src = objectURL;
-                    audioPlayer.play();
-                };
+    let { answer } = await response.json();
+    await pc.setRemoteDescription(answer);
 
-                audioStream.onerror = function(error) {
-                    console.error("WebSocket Error:", error);
-                };
-            }
-        })
-        .catch(error => console.error('Error:', error));
+    pc.ontrack = (event) => {
+        let audio = document.getElementById("audio-player");
+        audio.srcObject = event.streams[0];
+        audio.play();
+    };
 }
 
-// স্ট্রিম বন্ধ করা
-function stopStream() {
-    fetch('/stop')
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            checkStatus();
-
-            // WebSocket কানেকশন বন্ধ করা
-            if (audioStream) {
-                audioStream.close();
-                audioStream = null;
-            }
-
-            audioPlayer.pause();
-            audioPlayer.src = "";
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-// সার্ভারের স্ট্যাটাস চেক করা
-function checkStatus() {
-    fetch('/status')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("status").innerText = `Status: ${data.message}`;
-            if (data.status === "running" && !audioStream) {
-                startStream();
-            }
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-document.addEventListener("DOMContentLoaded", checkStatus);
+document.addEventListener("DOMContentLoaded", startStream);
