@@ -2,6 +2,7 @@ import asyncio
 import json
 import pyaudio
 from aiortc import RTCPeerConnection, MediaStreamTrack
+from aiortc.mediastreams import AudioFrame
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
@@ -17,7 +18,7 @@ class AudioStreamTrack(MediaStreamTrack):
 
     async def recv(self):
         frame = self.stream.read(1024)
-        return frame
+        return AudioFrame.from_ndarray(frame)
 
 @app.route("/")
 def index():
