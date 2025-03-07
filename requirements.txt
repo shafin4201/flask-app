@@ -1,4 +1,4 @@
-Flask
-ffmpeg-python
+flask
+flask-sockets
+pyaudio
 gunicorn
-requests
