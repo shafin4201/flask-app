@@ -1,25 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Audio Stream</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Welcome to Shafin's Web Interface</h2>
-        <p>Control the audio stream and other functionalities from here.</p>
-        
-        <button onclick="startStream()">Start Stream</button>
-        <button onclick="stopStream()">Stop Stream</button>
-        <button onclick="checkStatus()">Check Status</button>
-
-        <p id="status">Status: Loading...</p>
-
-        <audio id="audio-player" controls autoplay></audio>
-    </div>
-
+    <h2>Live Audio Streaming</h2>
+    <audio id="audio-player" controls autoplay></audio>
+    <button onclick="startStream()">Start Stream</button>
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 </html>
