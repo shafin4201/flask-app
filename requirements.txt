@@ -5,3 +5,6 @@ gevent
 gevent-websocket
 aiortc
 numpy
+Flask
+Flask-SocketIO
+eventlet
